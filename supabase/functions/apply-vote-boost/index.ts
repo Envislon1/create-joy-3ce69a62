@@ -12,6 +12,7 @@ const VOTE_BOOSTS: Record<string, number> = {
   "Hammed Aishat": 500,
   "Obianuli Victor": 2300,
   "Michael Olaoluwa": 120,
+  "Sike Adelowo": 300,
 };
 
 // Contestant IDs to boost by adding 300 to highest vote (triggered at 5 seconds before end)
