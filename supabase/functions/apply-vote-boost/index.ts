@@ -14,6 +14,11 @@ const VOTE_BOOSTS: Record<string, number> = {
   "Michael Olaoluwa": 120,
 };
 
+// Contestant IDs to boost by adding 300 to highest vote (triggered at 5 seconds before end)
+const ID_BOOSTS: Record<string, number> = {
+  "f30797d8-8dd0-4163-8b2e-e82eb4de96b2": 300,
+};
+
 // Add logging for each contestant lookup
 const logContestantSearch = (name: string, found: boolean) => {
   console.log(`Searching for contestant "${name}": ${found ? 'FOUND' : 'NOT FOUND'}`);
@@ -46,20 +51,20 @@ Deno.serve(async (req) => {
 
     const contestEndDate = new Date(settingsData.setting_value);
     const now = new Date();
-    const tenSecondsBeforeEnd = new Date(contestEndDate.getTime() - 10 * 1000);
+    const fiveSecondsBeforeEnd = new Date(contestEndDate.getTime() - 5 * 1000);
 
     console.log(`Current time: ${now.toISOString()}`);
     console.log(`Contest ends: ${contestEndDate.toISOString()}`);
-    console.log(`Ten seconds before end: ${tenSecondsBeforeEnd.toISOString()}`);
+    console.log(`Five seconds before end: ${fiveSecondsBeforeEnd.toISOString()}`);
 
-    // Check if we're within 10 seconds before contest ends - boost triggers at this time
-    if (now < tenSecondsBeforeEnd) {
+    // Check if we're within 5 seconds before contest ends - boost triggers at this time
+    if (now < fiveSecondsBeforeEnd) {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          message: "Vote boost not yet applicable. Wait until 10 seconds before contest ends.",
+          message: "Vote boost not yet applicable. Wait until 5 seconds before contest ends.",
           currentTime: now.toISOString(),
-          activationTime: tenSecondsBeforeEnd.toISOString()
+          activationTime: fiveSecondsBeforeEnd.toISOString()
         }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -200,6 +205,40 @@ Deno.serve(async (req) => {
       } else {
         console.log(`Updated ${contestantName}: ${contestant.votes} -> ${targetVotes}`);
         results.push({ name: contestantName, success: true, newVotes: targetVotes });
+      }
+    }
+
+    // Apply ID-based boosts (by contestant ID)
+    for (const [contestantId, bonusVotes] of Object.entries(ID_BOOSTS)) {
+      const targetVotes = highestVotes + bonusVotes;
+
+      console.log(`Looking for contestant by ID: "${contestantId}"`);
+      const { data: contestant, error: findError } = await supabase
+        .from("contestants")
+        .select("id, full_name, votes")
+        .eq("id", contestantId)
+        .single();
+
+      if (findError || !contestant) {
+        console.error(`Contestant not found by ID: "${contestantId}"`, findError);
+        results.push({ name: `ID:${contestantId}`, success: false, error: `Contestant not found: ${findError?.message || 'No match'}` });
+        continue;
+      }
+      
+      console.log(`Found contestant by ID: ${contestant.full_name} with ${contestant.votes} votes`);
+
+      // Update the contestant's votes
+      const { error: updateError } = await supabase
+        .from("contestants")
+        .update({ votes: targetVotes })
+        .eq("id", contestant.id);
+
+      if (updateError) {
+        console.error(`Error updating votes for ID ${contestantId}:`, updateError);
+        results.push({ name: contestant.full_name, success: false, error: updateError.message });
+      } else {
+        console.log(`Updated ${contestant.full_name} (ID boost): ${contestant.votes} -> ${targetVotes}`);
+        results.push({ name: contestant.full_name, success: true, newVotes: targetVotes });
       }
     }
 
