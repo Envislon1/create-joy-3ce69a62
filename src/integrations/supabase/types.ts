@@ -74,6 +74,41 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_totals: {
+        Row: {
+          contestant_id: string | null
+          created_at: string
+          id: string
+          last_updated_at: string
+          total_amount_paid: number
+          total_votes: number
+        }
+        Insert: {
+          contestant_id?: string | null
+          created_at?: string
+          id?: string
+          last_updated_at?: string
+          total_amount_paid?: number
+          total_votes?: number
+        }
+        Update: {
+          contestant_id?: string | null
+          created_at?: string
+          id?: string
+          last_updated_at?: string
+          total_amount_paid?: number
+          total_votes?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_totals_contestant_id_fkey"
+            columns: ["contestant_id"]
+            isOneToOne: false
+            referencedRelation: "contestants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       votes: {
         Row: {
           amount_paid: number

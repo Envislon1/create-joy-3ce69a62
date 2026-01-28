@@ -24,8 +24,11 @@ export function Navbar() {
             <img 
               src={logoBaby} 
               alt="Little Stars Kiddies" 
-              className="h-12 w-auto interactive"
+              className="h-12 w-auto"
               loading="eager"
+              onContextMenu={(e) => e.preventDefault()}
+              draggable={false}
+              style={{ pointerEvents: 'none' }}
             />
           </Link>
           

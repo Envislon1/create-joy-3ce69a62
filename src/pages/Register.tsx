@@ -1,24 +1,11 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { RegistrationForm } from "@/components/RegistrationForm";
-import { Copy, Check } from "lucide-react";
 
 const Register = () => {
-  const [registeredSlug, setRegisteredSlug] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const navigate = useNavigate();
 
   const handleRegistrationSuccess = (slug: string) => {
-    setRegisteredSlug(slug);
-  };
-
-  const profileLink = registeredSlug 
-    ? `${window.location.origin}/contestant/${registeredSlug}`
-    : "";
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(profileLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    navigate(`/contestant/${slug}`);
   };
 
   return (
@@ -41,55 +28,9 @@ const Register = () => {
             Fill in the details below to enter your child into the contest.
           </p>
 
-          {registeredSlug ? (
-            <div className="rounded-xl p-6 bg-white/10 backdrop-blur border border-white/20">
-              <h2 className="text-xl font-semibold mb-4 text-center text-white">Registration Successful!</h2>
-              
-              <div className="bg-destructive/20 border border-destructive/30 rounded-lg p-4 mb-4">
-                <p className="text-sm font-medium text-white mb-1">Important:</p>
-                <p className="text-sm text-white/80">
-                  Copy and save this link! You will need it to access your child's profile and share it with family and friends for voting.
-                </p>
-              </div>
-
-              <p className="text-sm text-white/80 mb-2">Your child's unique profile link:</p>
-              
-              <div className="flex items-center gap-2 mb-4">
-                <input
-                  type="text"
-                  readOnly
-                  value={profileLink}
-                  className="flex-1 border border-white/30 p-2 rounded-lg bg-white/10 text-sm text-white"
-                />
-                <button
-                  onClick={copyToClipboard}
-                  className="border border-white/30 p-2 rounded-lg hover:bg-white/10 transition text-white"
-                  title="Copy link"
-                >
-                  {copied ? <Check className="w-5 h-5 text-green-400" /> : <Copy className="w-5 h-5" />}
-                </button>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <Link
-                  to={`/contestant/${registeredSlug}`}
-                  className="bg-white text-section-blue px-4 py-2 rounded-lg text-center font-medium hover:bg-gray-100 transition"
-                >
-                  View Profile
-                </Link>
-                <button
-                  onClick={() => setRegisteredSlug(null)}
-                  className="border border-white/30 text-white px-4 py-2 rounded-lg text-center hover:bg-white/10 transition"
-                >
-                  Register Another Child
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-white/10 backdrop-blur rounded-xl p-6 border border-white/20">
-              <RegistrationForm onSuccess={handleRegistrationSuccess} />
-            </div>
-          )}
+          <div className="bg-white/10 backdrop-blur rounded-xl p-6 border border-white/20">
+            <RegistrationForm onSuccess={handleRegistrationSuccess} />
+          </div>
         </div>
       </section>
     </div>

@@ -17,7 +17,7 @@ export function RegistrationForm({ onSuccess }: RegistrationFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName || !age || !sex) {
+    if (!fullName || !age || !sex || !whatsappContact || !photo) {
       toast({ title: "Please fill all required fields", variant: "destructive" });
       return;
     }
@@ -115,23 +115,25 @@ export function RegistrationForm({ onSuccess }: RegistrationFormProps) {
       </div>
 
       <div>
-        <label className="block text-sm mb-1 text-white/90">WhatsApp Contact</label>
+        <label className="block text-sm mb-1 text-white/90">WhatsApp Contact *</label>
         <input
           type="tel"
           value={whatsappContact}
           onChange={(e) => setWhatsappContact(e.target.value)}
           placeholder="e.g. 08012345678"
           className="w-full border border-white/30 p-2 rounded bg-white/10 text-white placeholder:text-white/50"
+          required
         />
       </div>
 
       <div>
-        <label className="block text-sm mb-1 text-white/90">Photo</label>
+        <label className="block text-sm mb-1 text-white/90">Photo *</label>
         <input
           type="file"
           accept="image/*"
           onChange={(e) => setPhoto(e.target.files?.[0] || null)}
           className="w-full border border-white/30 p-2 rounded bg-white/10 text-white file:bg-white file:text-section-blue file:border-0 file:rounded file:mr-2"
+          required
         />
       </div>
 
